@@ -125,10 +125,7 @@ var GToken *gtoken.GfToken
 // Gtoken鉴权
 func (s *sMiddleware) GTokenSetCtx(r *ghttp.Request) {
 	var tokenInfo TokenInfo
-	//todo
-	g.Dump("r:", r)
 	token := GToken.GetTokenData(r)
-	g.Dump("token:", token)
 	err := gconv.Struct(token.GetString("data"), &tokenInfo)
 	if err != nil {
 		response.Auth(r)
@@ -147,6 +144,5 @@ func (s *sMiddleware) GTokenSetCtx(r *ghttp.Request) {
 	//r.SetCtxVar(CtxAccountSign, tokenInfo.Sign)
 	//r.SetCtxVar(CtxAccountRoleIds, tokenInfo.RoleIds)
 	//r.SetCtxVar(CtxAccountIsAdmin, tokenInfo.Sign)
-
 	r.Middleware.Next()
 }

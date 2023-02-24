@@ -2,90 +2,109 @@ package cmd
 
 import (
 	"context"
-	"github.com/goflyfox/gtoken/gtoken"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
-	"github.com/gogf/gf/v2/text/gstr"
-	"github.com/gogf/gf/v2/util/gconv"
-	"goframe-shop-v2/api/backend"
 	"goframe-shop-v2/internal/consts"
 	"goframe-shop-v2/internal/controller"
-	"goframe-shop-v2/internal/dao"
-	"goframe-shop-v2/internal/model/entity"
 	"goframe-shop-v2/internal/service"
-	"goframe-shop-v2/utility"
-	"goframe-shop-v2/utility/response"
-	"strconv"
 )
 
 var (
 	Main = gcmd.Command{
-		Name:  "main",
-		Usage: "main",
-		Brief: "start http server",
+		Name:  consts.ProjectName,
+		Usage: consts.ProjectUsage,
+		Brief: consts.ProjectBrief,
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			s := g.Server()
-			// 启动gtoken
-			gfAdminToken := &gtoken.GfToken{
-				CacheMode:        2,
-				ServerName:       "shop",
-				LoginPath:        "/backend/login",
-				LoginBeforeFunc:  loginFunc,
-				LoginAfterFunc:   loginAfterFunc,
-				LogoutPath:       "/backend/user/logout",
-				AuthPaths:        g.SliceStr{"/backend/admin/info"},
-				AuthExcludePaths: g.SliceStr{"/admin/user/info", "/admin/system/user/info"}, // 不拦截路径 /user/info,/system/user/info,/system/user,
-				AuthAfterFunc:    authAfterFunc,
-				MultiLogin:       true,
-			}
-			//todo 抽取方法
-			err = gfAdminToken.Start()
+			//订单超时未评价默认好评 todo 放开
+			//err = UserOrderDefaultComments(ctx)
+			//if err != nil {
+			//	panic(err)
+			//}
+			// 启动管理后台gtoken
+			gfAdminToken, err := StartBackendGToken()
 			if err != nil {
 				return err
 			}
-			s.Group("/", func(group *ghttp.RouterGroup) {
+			//管理后台路由组
+			s.Group("/backend", func(group *ghttp.RouterGroup) {
 				group.Middleware(
 					service.Middleware().CORS,
 					service.Middleware().Ctx,
 					service.Middleware().ResponseHandler,
 				)
-				//gtoken中间件绑定
-				//err := gfAdminToken.Middleware(ctx, group)
-				//if err != nil {
-				//	panic(err)
-				//}
+				//不需要登录的路由组绑定
 				group.Bind(
-					controller.Hello,        //示例
-					controller.Rotation,     // 轮播图
-					controller.Position,     // 手工位
 					controller.Admin.Create, // 管理员
-					controller.Admin.Update, // 管理员
-					controller.Admin.Delete, // 管理员
-					controller.Admin.List,   // 管理员
 					controller.Login,        // 登录
-					controller.Data,         // 数据大屏相关
-					controller.Role,         // 角色
-					controller.Permission,   // 权限
 				)
-				// Special handler that needs authentication.
+				//需要登录的路由组绑定
 				group.Group("/", func(group *ghttp.RouterGroup) {
-					//group.Middleware(service.Middleware().Auth) //for jwt
 					err := gfAdminToken.Middleware(ctx, group)
 					if err != nil {
 						panic(err)
 					}
-					group.ALLMap(g.Map{
-						"/backend/admin/info": controller.Admin.Info,
-					})
 					group.Bind(
-						controller.File,
+						controller.Data,         // 数据大屏相关
+						controller.Role,         // 角色
+						controller.Permission,   // 权限
+						controller.Admin.List,   // 管理员
+						controller.Admin.Update, // 管理员
+						controller.Admin.Delete, // 管理员
+						controller.Admin.Info,   // 查询当前管理员信息
+						controller.Rotation,     // 轮播图
+						controller.Position,     // 手工位
+						controller.File,         //从0到1实现文件入库
+						controller.Upload,       //实现可跨项目使用的文件上云工具类
+						controller.Category,     //商品分类管理
+						controller.Coupon,       //商品优惠券管理
+						controller.UserCoupon,   //商品优惠券管理
+						controller.Goods,        //商品管理
+						controller.GoodsOptions, //商品规格管理
+						controller.Article,      //文章管理&CMS
+						controller.Address,      //城市地址管理
+						//这么写是为了避免前后端重复注册相同的路由和方法
+						controller.Order.List,   //订单列表
+						controller.Order.Detail, //订单详情
 					)
-					//group.Middleware(service.Middleware().GTokenSetCtx, ) //for gtoken
-					//todo 优化代码 返回的数据格式和之前的一致
-					//group.ALL("/backend/admin/info", func(r *ghttp.Request) {
-					//	r.Response.WriteJson(gfAdminToken.GetTokenData(r).Data)
-					//})
+				})
+			})
+			//---------------------华丽的分割线-------------------
+			// 启动前台项目gtoken
+			frontendToken, err := StartFrontendGToken()
+			if err != nil {
+				return err
+			}
+			//前台项目路由组
+			s.Group("/frontend", func(group *ghttp.RouterGroup) {
+				group.Middleware(
+					service.Middleware().CORS,
+					service.Middleware().Ctx,
+					service.Middleware().ResponseHandler,
+				)
+				//不需要登录的路由组绑定
+				group.Bind(
+					controller.User.Register, //用户注册
+					controller.Goods,         //商品
+				)
+				//需要登录鉴权的路由组
+				group.Group("/", func(group *ghttp.RouterGroup) {
+					err := frontendToken.Middleware(ctx, group)
+					if err != nil {
+						return
+					}
+					//需要登录鉴权的接口放到这里
+					group.Bind(
+						controller.User.Info,           //当前登录用户的信息
+						controller.User.UpdatePassword, //当前用户修改密码
+						controller.Collection,          //收藏
+						controller.Praise,              //收藏
+						controller.Comment,             //评论
+						controller.Cart,                //购物车
+						controller.Order.Add,           //下单
+						controller.OrderGoodsComments,  //订单评价
+					)
 				})
 			})
 			s.Run()
@@ -93,144 +112,3 @@ var (
 		},
 	}
 )
-
-// todo 迁移到合适的位置
-func loginFunc(r *ghttp.Request) (string, interface{}) {
-	name := r.Get("name").String()
-	password := r.Get("password").String()
-	ctx := context.TODO()
-
-	if name == "" || password == "" {
-		r.Response.WriteJson(gtoken.Fail("账号或密码错误."))
-		r.ExitAll()
-	}
-
-	//验证账号密码是否正确
-	adminInfo := entity.AdminInfo{}
-	err := dao.AdminInfo.Ctx(ctx).Where("name", name).Scan(&adminInfo)
-	if err != nil {
-		r.Response.WriteJson(gtoken.Fail("账号或密码错误."))
-		r.ExitAll()
-	}
-	if utility.EncryptPassword(password, adminInfo.UserSalt) != adminInfo.Password {
-		r.Response.WriteJson(gtoken.Fail("账号或密码错误."))
-		r.ExitAll()
-	}
-	// 唯一标识，扩展参数user data
-	return consts.GTokenAdminPrefix + strconv.Itoa(adminInfo.Id), adminInfo
-}
-
-// todo 迁移到合适的位置
-// 自定义的登录之后的函数
-func loginAfterFunc(r *ghttp.Request, respData gtoken.Resp) {
-	//g.Dump("respData:", respData)
-	if !respData.Success() {
-		respData.Code = 0
-		r.Response.WriteJson(respData)
-		return
-	} else {
-		respData.Code = 1
-		//获得登录用户id
-		userKey := respData.GetString("userKey")
-		adminId := gstr.StrEx(userKey, consts.GTokenAdminPrefix)
-		//g.Dump("adminId:", adminId)
-		//根据id获得登录用户其他信息
-		adminInfo := entity.AdminInfo{}
-		err := dao.AdminInfo.Ctx(context.TODO()).WherePri(adminId).Scan(&adminInfo)
-		if err != nil {
-			return
-		}
-		//通过角色查询权限
-		//先通过角色查询权限id
-		var rolePermissionInfos []entity.RolePermissionInfo
-		err = dao.RolePermissionInfo.Ctx(context.TODO()).WhereIn(dao.RolePermissionInfo.Columns().RoleId, g.Slice{adminInfo.RoleIds}).Scan(&rolePermissionInfos)
-		if err != nil {
-			return
-		}
-		permissionIds := g.Slice{}
-		for _, info := range rolePermissionInfos {
-			permissionIds = append(permissionIds, info.PermissionId)
-		}
-
-		var permissions []entity.PermissionInfo
-		err = dao.PermissionInfo.Ctx(context.TODO()).WhereIn(dao.PermissionInfo.Columns().Id, permissionIds).Scan(&permissions)
-		if err != nil {
-			return
-		}
-		// 设置登录返回信息
-		data := &backend.LoginRes{
-			Type:        "Bearer",
-			Token:       respData.GetString("token"),
-			ExpireIn:    10 * 24 * 60 * 60, //单位秒, 这里了设置1天
-			IsAdmin:     adminInfo.IsAdmin,
-			RoleIds:     adminInfo.RoleIds,
-			Permissions: permissions,
-		}
-		response.JsonExit(r, 0, "", data)
-	}
-	return
-}
-
-// 拦截认证完成后调用
-func authAfterFunc(r *ghttp.Request, respData gtoken.Resp) {
-	//g.Dump("respData:", respData)
-	var adminInfo entity.AdminInfo
-	err := gconv.Struct(respData.GetString("data"), &adminInfo)
-	if err != nil {
-		response.Auth(r)
-		return
-	}
-
-	r.SetCtxVar(consts.CtxAdminId, adminInfo.Id)
-	r.SetCtxVar(consts.CtxAdminName, adminInfo.Name)
-	r.SetCtxVar(consts.CtxAdminIsAdmin, adminInfo.IsAdmin)
-	r.SetCtxVar(consts.CtxAdminRoleIds, adminInfo.RoleIds)
-	r.Middleware.Next()
-}
-
-func LoginAfterFunc(r *ghttp.Request, respData gtoken.Resp) {
-	//g.Dump("respData:", respData)
-	if !respData.Success() {
-		respData.Code = 0
-		r.Response.WriteJson(respData)
-	} else {
-		respData.Code = 1
-		//获得登录用户id
-		userKey := respData.GetString("userKey")
-		adminId := gstr.StrEx(userKey, consts.GTokenAdminPrefix)
-		//g.Dump("adminId:", adminId)
-		//根据id获得登录用户其他信息
-		adminInfo := entity.AdminInfo{}
-		err := dao.AdminInfo.Ctx(context.TODO()).WherePri(adminId).Scan(&adminInfo)
-		if err != nil {
-			return
-		}
-		//通过角色查询权限
-		//先通过角色查询权限id
-		var rolePermissionInfos []entity.RolePermissionInfo
-		err = dao.RolePermissionInfo.Ctx(context.TODO()).WhereIn(dao.RolePermissionInfo.Columns().RoleId, g.Slice{adminInfo.RoleIds}).Scan(&rolePermissionInfos)
-		if err != nil {
-			return
-		}
-		permissionIds := g.Slice{}
-		for _, info := range rolePermissionInfos {
-			permissionIds = append(permissionIds, info.PermissionId)
-		}
-
-		var permissions []entity.PermissionInfo
-		err = dao.PermissionInfo.Ctx(context.TODO()).WhereIn(dao.PermissionInfo.Columns().Id, permissionIds).Scan(&permissions)
-		if err != nil {
-			return
-		}
-		data := &backend.LoginRes{
-			Type:        "Bearer",
-			Token:       respData.GetString("token"),
-			ExpireIn:    10 * 24 * 60 * 60, //单位秒,todo 根据实际情况修改
-			IsAdmin:     adminInfo.IsAdmin,
-			RoleIds:     adminInfo.RoleIds,
-			Permissions: permissions,
-		}
-		response.JsonExit(r, 0, "", data) //todo 替换成相同的方法
-	}
-	return
-}
