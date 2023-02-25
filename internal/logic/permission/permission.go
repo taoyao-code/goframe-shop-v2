@@ -1,6 +1,8 @@
 package role
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"goframe-shop-v2/internal/dao"
 	"goframe-shop-v2/internal/model"
@@ -59,11 +61,11 @@ func (s *sPermission) GetList(ctx context.Context, in model.PermissionGetListInp
 	}
 
 	// 分配查询
-	listModel := m.Page(in.Page, in.Size)
+	//listModel := m.Page(in.Page, in.Size)
 
 	// 执行查询
 	var list []*entity.PermissionInfo
-	if err := listModel.Scan(&list); err != nil {
+	if err := m.Scan(&list); err != nil {
 		return out, err
 	}
 	// 没有数据
@@ -74,9 +76,60 @@ func (s *sPermission) GetList(ctx context.Context, in model.PermissionGetListInp
 	if err != nil {
 		return out, err
 	}
+
+	var a []model.PermissionGetListOutItem
 	//不指定item的键名用：Scan
-	if err := listModel.Scan(&out.List); err != nil {
+	if err := m.Scan(&a); err != nil {
 		return out, err
 	}
+	menus, err := GetItemMenus(a)
+	//menus, err := GetItemMenus(out.List)
+	out.List = menus
+
 	return
+}
+
+func GetItemMenus(Data []model.PermissionGetListOutItem) ([]model.PermissionGetListOutputItem, error) {
+	// 构建 map 保存每个 Menu 对象
+	menuMap := make(map[int64]*model.PermissionGetListOutputItem)
+	var tree []*model.PermissionGetListOutputItem
+
+	for _, item := range Data {
+		var treeItem model.PermissionGetListOutputItem
+		// 主数据
+		treeItem.ID = item.ID
+		treeItem.ParentID = item.ParentID
+		treeItem.Path = item.Path
+		treeItem.Component = item.Component
+		treeItem.Redirect = item.Redirect
+		treeItem.Name = item.Name
+
+		fmt.Println(item.AlwaysShow)
+		treeItem.Meta = &model.Meta{
+			Title:      item.Title,
+			Icon:       item.Icon,
+			AlwaysShow: item.AlwaysShow == 1,
+			NoCache:    item.NoCache == 1,
+		}
+		treeItem.Children = []*model.PermissionGetListOutputItem{}
+
+		// 根节点收集
+		if item.ParentID == 0 {
+			tree = append(tree, &treeItem)
+		} else {
+			// 子节点收集
+			menuMap[item.ParentID].Children = append(menuMap[item.ParentID].Children, &treeItem)
+		}
+		// 把子节点映射到map表
+		menuMap[item.ID] = &treeItem
+	}
+
+	jsonRes, _ := json.Marshal(tree)
+	var p []model.PermissionGetListOutputItem
+	err := json.Unmarshal(jsonRes, &p)
+	if err != nil {
+		return nil, err
+	}
+	return p, nil
+
 }

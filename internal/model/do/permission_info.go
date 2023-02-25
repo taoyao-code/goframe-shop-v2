@@ -11,18 +11,18 @@ import (
 
 // PermissionInfo is the golang structure of table permission_info for DAO operations like Where/Data.
 type PermissionInfo struct {
-	g.Meta    `orm:"table:permission_info, do:true"`
-	Id        interface{} //
-	Name      interface{} // 权限名称
-	Path      interface{} // 路径
-	CreatedAt *gtime.Time //
-	UpdatedAt *gtime.Time //
-	DeletedAt *gtime.Time //
-	Component interface{} // 前端文件地址
-	ParentId  interface{} // 父级ID
-	Redirect  interface{} // 跳转地址
-	Keepalive interface{} // 1 缓存 2 不存在
-	Hidden    interface{} //
-	Sort      interface{} // 排序字段
-	Icon      interface{} // 菜单图标
+	g.Meta     `orm:"table:permission_info, do:true"`
+	Id         interface{} //
+	ParentId   interface{} // 父级ID
+	Path       interface{} // 菜单路径
+	Component  interface{} // 菜单对应的组件名称-前端文件路径
+	Redirect   interface{} // 重定向路径
+	Name       interface{} // 菜单名称
+	Title      interface{} // 菜单元数据标题
+	MetaIcon   interface{} // 菜单元数据icon图标
+	AlwaysShow interface{} // 是否总是显示菜单项
+	NoCache    interface{} // 是否缓存菜单项
+	CreatedAt  *gtime.Time //
+	UpdatedAt  *gtime.Time //
+	DeletedAt  *gtime.Time //
 }

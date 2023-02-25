@@ -10,17 +10,17 @@ import (
 
 // PermissionInfo is the golang structure for table permission_info.
 type PermissionInfo struct {
-	Id        int         `json:"id"        description:""`
-	Name      string      `json:"name"      description:"权限名称"`
-	Path      string      `json:"path"      description:"路径"`
-	CreatedAt *gtime.Time `json:"createdAt" description:""`
-	UpdatedAt *gtime.Time `json:"updatedAt" description:""`
-	DeletedAt *gtime.Time `json:"deletedAt" description:""`
-	Component string      `json:"component" description:"前端文件地址"`
-	ParentId  uint        `json:"parentId"  description:"父级ID"`
-	Redirect  string      `json:"redirect"  description:"跳转地址"`
-	Keepalive int         `json:"keepalive" description:"1 缓存 2 不存在"`
-	Hidden    int         `json:"hidden"    description:""`
-	Sort      int         `json:"sort"      description:"排序字段"`
-	Icon      string      `json:"icon"      description:"菜单图标"`
+	Id         int         `json:"id"         description:""`
+	ParentId   int         `json:"parentId"   description:"父级ID"`
+	Path       string      `json:"path"       description:"菜单路径"`
+	Component  string      `json:"component"  description:"菜单对应的组件名称-前端文件路径"`
+	Redirect   string      `json:"redirect"   description:"重定向路径"`
+	Name       string      `json:"name"       description:"菜单名称"`
+	Title      string      `json:"title"      description:"菜单元数据标题"`
+	MetaIcon   string      `json:"metaIcon"   description:"菜单元数据icon图标"`
+	AlwaysShow int         `json:"alwaysShow" description:"是否总是显示菜单项"`
+	NoCache    int         `json:"noCache"    description:"是否缓存菜单项"`
+	CreatedAt  *gtime.Time `json:"createdAt"  description:""`
+	UpdatedAt  *gtime.Time `json:"updatedAt"  description:""`
+	DeletedAt  *gtime.Time `json:"deletedAt"  description:""`
 }

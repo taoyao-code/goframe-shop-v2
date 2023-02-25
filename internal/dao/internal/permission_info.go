@@ -20,36 +20,36 @@ type PermissionInfoDao struct {
 
 // PermissionInfoColumns defines and stores column names for table permission_info.
 type PermissionInfoColumns struct {
-	Id        string //
-	Name      string // 权限名称
-	Path      string // 路径
-	CreatedAt string //
-	UpdatedAt string //
-	DeletedAt string //
-	Component string // 前端文件地址
-	ParentId  string // 父级ID
-	Redirect  string // 跳转地址
-	Keepalive string // 1 缓存 2 不存在
-	Hidden    string //
-	Sort      string // 排序字段
-	Icon      string // 菜单图标
+	Id         string //
+	ParentId   string // 父级ID
+	Path       string // 菜单路径
+	Component  string // 菜单对应的组件名称-前端文件路径
+	Redirect   string // 重定向路径
+	Name       string // 菜单名称
+	Title      string // 菜单元数据标题
+	MetaIcon   string // 菜单元数据icon图标
+	AlwaysShow string // 是否总是显示菜单项
+	NoCache    string // 是否缓存菜单项
+	CreatedAt  string //
+	UpdatedAt  string //
+	DeletedAt  string //
 }
 
 // permissionInfoColumns holds the columns for table permission_info.
 var permissionInfoColumns = PermissionInfoColumns{
-	Id:        "id",
-	Name:      "name",
-	Path:      "path",
-	CreatedAt: "created_at",
-	UpdatedAt: "updated_at",
-	DeletedAt: "deleted_at",
-	Component: "component",
-	ParentId:  "parent_id",
-	Redirect:  "redirect",
-	Keepalive: "keepalive",
-	Hidden:    "hidden",
-	Sort:      "sort",
-	Icon:      "icon",
+	Id:         "id",
+	ParentId:   "parent_id",
+	Path:       "path",
+	Component:  "component",
+	Redirect:   "redirect",
+	Name:       "name",
+	Title:      "title",
+	MetaIcon:   "meta_icon",
+	AlwaysShow: "always_show",
+	NoCache:    "no_cache",
+	CreatedAt:  "created_at",
+	UpdatedAt:  "updated_at",
+	DeletedAt:  "deleted_at",
 }
 
 // NewPermissionInfoDao creates and returns a new DAO object for table data access.

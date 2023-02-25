@@ -39,15 +39,50 @@ type PermissionGetListOutput struct {
 	Total int                           `json:"total" description:"数据总数"`
 }
 
-type PermissionGetListOutputItem struct {
-	Id        uint        `json:"id"` // 自增ID
-	Name      string      `json:"name"`
-	Path      string      `json:"path"`
-	Component string      `json:"component"`  // 前端文件路径
-	CreatedAt *gtime.Time `json:"created_at"` // 创建时间
-	UpdatedAt *gtime.Time `json:"updated_at"` // 修改时间
-}
+//type PermissionGetListOutputItem struct {
+//	Id        uint        `json:"id"` // 自增ID
+//	Name      string      `json:"name"`
+//	Path      string      `json:"path"`
+//	Component string      `json:"component"`  // 前端文件路径
+//	CreatedAt *gtime.Time `json:"created_at"` // 创建时间
+//	UpdatedAt *gtime.Time `json:"updated_at"` // 修改时间
+//}
 
 type PermissionSearchOutputItem struct {
 	PermissionGetListOutputItem
+}
+
+type PermissionGetListOutputItem struct {
+	ID        int64                          `json:"id"` // 自增ID
+	ParentID  int64                          `json:"parent_id"`
+	Path      string                         `json:"path"`
+	Component string                         `json:"component"`
+	Redirect  string                         `json:"redirect"`
+	Name      string                         `json:"name"`
+	Meta      *Meta                          `json:"meta"`
+	Children  []*PermissionGetListOutputItem `json:"children"`
+	CreatedAt *gtime.Time                    `json:"created_at"` // 创建时间
+	UpdatedAt *gtime.Time                    `json:"updated_at"` // 修改时间
+}
+
+type Meta struct {
+	Title      string `json:"title"`
+	Icon       string `json:"icon"`
+	AlwaysShow bool   `json:"alwaysShow"`
+	NoCache    bool   `json:"noCache"`
+}
+
+type PermissionGetListOutItem struct {
+	ID         int64       `json:"id"` // 自增ID
+	ParentID   int64       `json:"parent_id"`
+	Path       string      `json:"path"`
+	Component  string      `json:"component"`
+	Redirect   string      `json:"redirect"`
+	Name       string      `json:"name"`
+	Title      string      `json:"title"`
+	Icon       string      `json:"icon"`
+	AlwaysShow uint        `json:"alwaysShow"`
+	NoCache    uint        `json:"noCache"`
+	CreatedAt  *gtime.Time `json:"created_at"` // 创建时间
+	UpdatedAt  *gtime.Time `json:"updated_at"` // 修改时间
 }
