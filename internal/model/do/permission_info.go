@@ -18,4 +18,11 @@ type PermissionInfo struct {
 	CreatedAt *gtime.Time //
 	UpdatedAt *gtime.Time //
 	DeletedAt *gtime.Time //
+	Component interface{} // 前端文件地址
+	ParentId  interface{} // 父级ID
+	Redirect  interface{} // 跳转地址
+	Keepalive interface{} // 1 缓存 2 不存在
+	Hidden    interface{} //
+	Sort      interface{} // 排序字段
+	Icon      interface{} // 菜单图标
 }

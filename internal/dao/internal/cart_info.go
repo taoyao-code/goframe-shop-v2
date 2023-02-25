@@ -22,7 +22,7 @@ type CartInfoDao struct {
 type CartInfoColumns struct {
 	Id             string // 购物车表
 	UserId         string //
-	GoodsOptionsId string //
+	GoodsOptionsId string // 商品规格id
 	Count          string // 商品数量
 	CreatedAt      string //
 	UpdatedAt      string //

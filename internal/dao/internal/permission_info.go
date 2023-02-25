@@ -26,6 +26,13 @@ type PermissionInfoColumns struct {
 	CreatedAt string //
 	UpdatedAt string //
 	DeletedAt string //
+	Component string // 前端文件地址
+	ParentId  string // 父级ID
+	Redirect  string // 跳转地址
+	Keepalive string // 1 缓存 2 不存在
+	Hidden    string //
+	Sort      string // 排序字段
+	Icon      string // 菜单图标
 }
 
 // permissionInfoColumns holds the columns for table permission_info.
@@ -36,6 +43,13 @@ var permissionInfoColumns = PermissionInfoColumns{
 	CreatedAt: "created_at",
 	UpdatedAt: "updated_at",
 	DeletedAt: "deleted_at",
+	Component: "component",
+	ParentId:  "parent_id",
+	Redirect:  "redirect",
+	Keepalive: "keepalive",
+	Hidden:    "hidden",
+	Sort:      "sort",
+	Icon:      "icon",
 }
 
 // NewPermissionInfoDao creates and returns a new DAO object for table data access.

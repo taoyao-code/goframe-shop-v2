@@ -16,4 +16,11 @@ type PermissionInfo struct {
 	CreatedAt *gtime.Time `json:"createdAt" description:""`
 	UpdatedAt *gtime.Time `json:"updatedAt" description:""`
 	DeletedAt *gtime.Time `json:"deletedAt" description:""`
+	Component string      `json:"component" description:"前端文件地址"`
+	ParentId  uint        `json:"parentId"  description:"父级ID"`
+	Redirect  string      `json:"redirect"  description:"跳转地址"`
+	Keepalive int         `json:"keepalive" description:"1 缓存 2 不存在"`
+	Hidden    int         `json:"hidden"    description:""`
+	Sort      int         `json:"sort"      description:"排序字段"`
+	Icon      string      `json:"icon"      description:"菜单图标"`
 }

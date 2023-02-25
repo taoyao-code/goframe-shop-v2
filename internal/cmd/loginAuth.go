@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"github.com/goflyfox/gtoken/gtoken"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
@@ -72,6 +73,7 @@ func loginFunc(r *ghttp.Request) (string, interface{}) {
 		r.Response.WriteJson(gtoken.Fail(consts.ErrLoginFaulMsg))
 		r.ExitAll()
 	}
+	fmt.Println("密码：", utility.EncryptPassword(password, adminInfo.UserSalt))
 	if utility.EncryptPassword(password, adminInfo.UserSalt) != adminInfo.Password {
 		r.Response.WriteJson(gtoken.Fail(consts.ErrLoginFaulMsg))
 		r.ExitAll()

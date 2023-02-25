@@ -43,6 +43,7 @@ type PermissionGetListOutputItem struct {
 	Id        uint        `json:"id"` // 自增ID
 	Name      string      `json:"name"`
 	Path      string      `json:"path"`
+	Component string      `json:"component"`  // 前端文件路径
 	CreatedAt *gtime.Time `json:"created_at"` // 创建时间
 	UpdatedAt *gtime.Time `json:"updated_at"` // 修改时间
 }

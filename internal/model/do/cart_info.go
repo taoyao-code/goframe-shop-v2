@@ -14,7 +14,7 @@ type CartInfo struct {
 	g.Meta         `orm:"table:cart_info, do:true"`
 	Id             interface{} // 购物车表
 	UserId         interface{} //
-	GoodsOptionsId interface{} //
+	GoodsOptionsId interface{} // 商品规格id
 	Count          interface{} // 商品数量
 	CreatedAt      *gtime.Time //
 	UpdatedAt      *gtime.Time //

@@ -12,7 +12,7 @@ import (
 type CartInfo struct {
 	Id             int         `json:"id"             description:"购物车表"`
 	UserId         int         `json:"userId"         description:""`
-	GoodsOptionsId int         `json:"goodsOptionsId" description:""`
+	GoodsOptionsId int         `json:"goodsOptionsId" description:"商品规格id"`
 	Count          int         `json:"count"          description:"商品数量"`
 	CreatedAt      *gtime.Time `json:"createdAt"      description:""`
 	UpdatedAt      *gtime.Time `json:"updatedAt"      description:""`

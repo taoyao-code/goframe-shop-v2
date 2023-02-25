@@ -18,7 +18,7 @@ type OrderInfo struct {
 	PayType          interface{} // 支付方式 1微信 2支付宝 3云闪付
 	Remark           interface{} // 备注
 	PayAt            *gtime.Time // 支付时间
-	Status           interface{} // 订单状态： 1待支付 2已支付待发货 3已发货 4已收货待评价
+	Status           interface{} // 订单状态： 1待支付 2已支付待发货 3已发货 4已收货待评价 5已评价
 	ConsigneeName    interface{} // 收货人姓名
 	ConsigneePhone   interface{} // 收货人手机号
 	ConsigneeAddress interface{} // 收货人详细地址

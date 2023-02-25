@@ -16,7 +16,7 @@ type OrderInfo struct {
 	PayType          int         `json:"payType"          description:"支付方式 1微信 2支付宝 3云闪付"`
 	Remark           string      `json:"remark"           description:"备注"`
 	PayAt            *gtime.Time `json:"payAt"            description:"支付时间"`
-	Status           int         `json:"status"           description:"订单状态： 1待支付 2已支付待发货 3已发货 4已收货待评价"`
+	Status           int         `json:"status"           description:"订单状态： 1待支付 2已支付待发货 3已发货 4已收货待评价 5已评价"`
 	ConsigneeName    string      `json:"consigneeName"    description:"收货人姓名"`
 	ConsigneePhone   string      `json:"consigneePhone"   description:"收货人手机号"`
 	ConsigneeAddress string      `json:"consigneeAddress" description:"收货人详细地址"`
